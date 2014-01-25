@@ -1,37 +1,39 @@
 Game = Class.extend({
 	init: function () {
 		this.canvas = $('#screen')[0];
-		$('canvas').attr('width', 800).attr('height', 600);
+		$('canvas').attr('width', 1024).attr('height', 768);
 		this.state = 'loading';
 		this.ctx = this.canvas.getContext('2d');
 		this.resizeCanvas();
 		$(window).resize(this.resizeCanvas.bind(this));
 		this.keyState = {};
-		this.viewport = {x: this.canvas.width / 2, y: this.canvas.height / 2};
-		this.hero = new Hero(this);
-		this.hero.setPosition(400, 0);
 		this.addEvents();
 	},
 	run: function () {
-		var url = 'http://www.google.com';
+		var self = this;
+		this.draw();
+		var url = 'www.google.com';
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
-			alert('Cannot load page!');
+			self.state = 'loadfail';
 		});
 		/*
 		this.draw();
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_RATE);
 		*/
-		this.draw();
 	},
 	parseJSON: function (data) {
 		this.page = new Image();
-		this.page.src = data.bg;
+		this.page.src = Util.getBase64Image(data.bg);
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
 			var link = data.links[i];
-			this.platforms.push(new Platform(link.x, link.y, link.width, link.height, link.src));
+			this.platforms.push(new Platform(link.x, link.y, link.width, link.height,
+				Util.getBase64Image(link.src)));
 		}
 		this.state = 'game';
+		this.viewport = {x: this.canvas.width / 2, y: this.canvas.height / 2};
+		this.hero = new Hero(this);
+		this.hero.setPosition(400, 0);
 		/*
 			this.platforms.push(new Platform(570, 300, 100, 20));
 			this.platforms.push(new Platform(300, 100, 100, 20));
@@ -47,7 +49,10 @@ Game = Class.extend({
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		switch (this.state) {
 		case 'loading':
-			this.drawLoader();
+			this.drawText('Loading...');
+			break;
+		case 'loadfail':
+			this.drawText('Cannot load page!');
 			break;
 		case 'game':
 			this.drawGame();
@@ -55,20 +60,20 @@ Game = Class.extend({
 		}
 		requestAnimationFrame(this.draw.bind(this));
 	},
-	drawLoader: function () {
-		this.ctx.save();
-		this.ctx.textAlign = 'center';
-		this.ctx.textBaseline = 'middle';
-		this.ctx.font = '30px Tahoma';
-		this.ctx.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
-		this.ctx.restore();
-	},
 	drawGame: function () {
 		this.ctx.drawImage(this.page, 0, 0);
 		for (var i = 0; i < this.platforms.length; i++) {
 			this.platforms[i].draw(this.ctx);
 		}
 		this.hero.draw(this.ctx);
+	},
+	drawText: function (text) {
+		this.ctx.save();
+		this.ctx.textAlign = 'center';
+		this.ctx.textBaseline = 'middle';
+		this.ctx.font = '30px Tahoma';
+		this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
+		this.ctx.restore();
 	},
 	resizeCanvas: function () {
 		$('#screen').width($(window).width()).height($(window).height());

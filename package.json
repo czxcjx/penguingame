@@ -1,5 +1,6 @@
 {
 	"name": "penguingame",
+	"version": "0.0.1",
 	"description": "Pulls websites to make a platformer!",
 	"author": "",
 	"dependencies": {

@@ -20,9 +20,6 @@ Hero = Class.extend({
 			case Constants.Key.RIGHT:
 				this.move(1);
 				break;
-			case Constants.Key.DOWN:
-				
-				break;
 			case Constants.Key.SPACE:
 				this.jump();
 				break;
