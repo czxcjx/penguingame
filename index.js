@@ -130,6 +130,14 @@ function genPhantom(u,res) {
 									console.log(err);
 									return;
 								}
+								res.writeHead(200,"OK",{'Content-Type':"application/json"});
+									res.write(JSON.stringify({
+										links: result,
+										bg: page.renderBase64()
+									}));
+									res.end();
+									ph.exit();
+									/*
 								for (var i = 0; i < result.length; i++) {
 									result[i].img = "static/link"+i.toString()+".png";
 								}
@@ -166,7 +174,7 @@ function genPhantom(u,res) {
 									//sliceImages("static\\img.png",result,res);
 									//sendBlurImage("static\\img.png",res,result);
 									//result.bg = "/static/img.png";
-									console.log("DONE");
+									console.log("DONE");*/
 									});};
 									fn();
 								//});

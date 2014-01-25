@@ -3,7 +3,6 @@ Util = {
 		var image = new Image();
 		image.src = src + '?' + Date.now();
 		image.onload = callback;
-		alert(image.src);
 		return image;
 	},
 	getBase64Image: function (src, callback) {

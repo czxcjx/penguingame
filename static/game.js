@@ -12,7 +12,7 @@ Game = Class.extend({
 	run: function () {
 		var self = this;
 		this.draw();
-		var url = 'www.yahoo.com';
+		var url = 'en.wikipedia.com';
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
 		});
@@ -65,13 +65,19 @@ Game = Class.extend({
 		requestAnimationFrame(this.draw.bind(this));
 	},
 	drawGame: function () {
-		this.ctx.globalAlpha = 0.2;
+		var tmp = document.createElement('canvas');
+		tmp.width = this.canvas.width;
+		tmp.height = this.canvas.height;
+		var tmpCtx = tmp.getContext('2d');
+		tmpCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+		tmpCtx.fillRect(0, 0, tmp.width, tmp.height);
+		tmpCtx.globalCompositeOperation = 'destination-out';
+		for (var i = 0; i < this.platforms.length; i++) {
+			this.platforms[i].draw(tmpCtx);
+		}
 		this.ctx.drawImage(this.page, this.canvas.width / 2 - this.viewport.x,
 			this.canvas.height / 2 - this.viewport.y);
-		this.ctx.globalAlpha = 1;
-		for (var i = 0; i < this.platforms.length; i++) {
-			this.platforms[i].draw(this.ctx);
-		}
+		this.ctx.drawImage(tmp, 0, 0);
 		this.hero.draw(this.ctx);
 	},
 	drawText: function (text) {
