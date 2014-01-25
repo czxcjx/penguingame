@@ -1,11 +1,10 @@
 Platform = Class.extend({
-	init: function (x, y, width, height, src) {
+	init: function (x, y, width, height, image) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		this.image = new Image();
-		this.image.src = src;
+		this.image = image;
 	},
 	draw: function (ctx) {
 		ctx.save();
