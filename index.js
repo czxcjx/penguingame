@@ -85,7 +85,8 @@ function genPhantom(u,res) {
 													width: w,
 													y: o.top,
 													x: o.left,
-													text: $t.html().slice(0,-1)
+													text: $t.html().slice(0,-1),
+													href: $(this).attr('href')
 												});
 												//console.log(window.getComputedStyle(document.getElementById('test_overflow1')));
 												start = i;
@@ -104,7 +105,8 @@ function genPhantom(u,res) {
 													width: $t.width(),
 													y: o.top,
 													x: o.left,
-													text: $t.html()
+													text: $t.html(),
+													href: $(this).attr('href')
 												});
 											}
 										}
