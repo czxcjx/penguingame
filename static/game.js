@@ -61,7 +61,9 @@ Game = Class.extend({
 		requestAnimationFrame(this.draw.bind(this));
 	},
 	drawGame: function () {
-		this.ctx.drawImage(this.page, 0, 0);
+		this.ctx.globalAlpha = 0.2;
+		this.ctx.drawImage(this.page, this.viewport.x - this.canvas.width / 2,
+			this.viewport.y - this.canvas.height / 2);
 		for (var i = 0; i < this.platforms.length; i++) {
 			this.platforms[i].draw(this.ctx);
 		}
