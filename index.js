@@ -58,7 +58,9 @@ function genPhantom(u,res) {
 						setTimeout(function(){
 							return page.evaluate(function(){
 								var ret = [];
+								console.log(ret);
 								$('a').each(function(){
+									console.log(ret);
 									var str = $(this).html();
 									if (str.indexOf('<') != -1) return;
 									var start = 0;
@@ -69,6 +71,7 @@ function genPhantom(u,res) {
 										var ns = str.slice(0,start)+"<span id='test_overflow1'>"+str.slice(start,i+1)+"</span>"+str.slice(i+1,str.length);
 										$(this).html(ns);
 										var $t = $(document.getElementById('test_overflow1'));
+										//console.log(document.getMatchedCssRules(document.getElementById('test_overflow1'),''));
 										if (h==-1) h = $t.height();
 										else {
 											if (h != $t.height()) {
@@ -86,43 +89,60 @@ function genPhantom(u,res) {
 												h = $t.height();
 											}
 											if (i==str.length-1) {
+												o = document.getElementById('test_overflow1').getBoundingClientRect();
 												ret.push({
 													height: h,
 													width: $t.width(),
-													y: $t.offset().top,
-													x: $t.offset().left,
+													y: o.top,
+													x: o.left,
 													text: $t.html()
 												});
 											}
 										}
 										w = $t.width();
-										o.top = $t.offset().top;
-										o.left = $t.offset().left;
+										o = document.getElementById('test_overflow1').getBoundingClientRect();
+										/*o.top = $t.offset().top;
+										o.left = $t.offset().left;*/
 									}
 									$(this).html(str);
 									//$(this).html("<span style='text-shadow:1px 1px #888888'>"+str+"</span>");
+									console.log(ret);
 								});
+								console.log(ret);
 								ret = ret.filter(function(elem){
 									if (elem.width==0&&elem.height==0&&elem.x==0&&elem.y==0) return false;
+									if (elem.width<0||elem.height<0||elem.x<0||elem.y<0) return false;
 									return true;
 								});
+								console.log(ret);
 								return ret;
 							},function(err,result){
+								if(err) {
+									console.log(err);
+									return;
+								}
 								for (var i = 0; i < result.length; i++) {
 									result[i].img = "static/link"+i.toString()+".png";
 								}
-								fs.unlink("static\\img.png",function(err) {
+								if (fs.existsSync("static\\img.png")) fs.unlinkSync("static\\img.png");
+								//fs.unlink("static\\img.png",function(err) {
 									if (err) {
 										console.log(err);
 										return;
 									}
+									
 									page.render("static\\img.png");
+									ph.exit();
+									while (1) {
+										if (fs.existsSync("static\\img.png") && fs.statSync("static\\img.png")["size"]>0) break;
+										console.log("NOTTHERE");
+									}
 									sliceImages("static\\img.png",result,res);
 									//sendBlurImage("static\\img.png",res,result);
 									//result.bg = "/static/img.png";
 									console.log("DONE");
-									ph.exit();
-								});
+									
+								//});
 							});
 						},5000);
 					});
@@ -131,12 +151,13 @@ function genPhantom(u,res) {
 		});
 	});
 }
+
 function sliceImages(imgname,result,res) {
 	console.log("SLICING");
 	function docrop(err,i) {
 		if (i>=result.length) {
 			return gm(imgname).toBuffer(function(err,buffer){
-				res.writeHead(200,"OK",{'Content-Type':"application/json"});				
+				res.writeHead(200,"OK",{'Content-Type':"application/json"});	
 				res.write(JSON.stringify({
 					links: result,
 					bg: buffer.toString('base64')
@@ -151,13 +172,22 @@ function sliceImages(imgname,result,res) {
 			docrop(null,i);
 			return;
 		}
-		gm(imgname).crop(result[i].width,result[i].height,result[i].x,result[i].y).toBuffer((function(j){
+		var fn = function(j){
 			return function(err,buffer) {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				if (buffer.length<=0) {
+					gm(imgname).crop(result[i].width,result[i].height,result[i].x,result[i].y).toBuffer(fn(j));
+					return;
+				}
 				console.log("DONE "+(j-1));
 				result[j-1].img = buffer.toString('base64');
 				docrop(err,j);
 			}
-		})(i+1));
+		};
+		gm(imgname).crop(result[i].width,result[i].height,result[i].x,result[i].y).toBuffer(fn(i+1));
 	}
 	docrop(null,0);
 	/*
