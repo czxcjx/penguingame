@@ -152,6 +152,7 @@ function genPhantom(u,res) {
 										links: result,
 										bg: "/static/img.png"
 									}));
+									res.end();
 									//sliceImages("static\\img.png",result,res);
 									//sendBlurImage("static\\img.png",res,result);
 									//result.bg = "/static/img.png";
