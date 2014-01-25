@@ -62,7 +62,7 @@ Hero = Class.extend({
 		// Fall until we intersect with a platform
 		this.y += this.speedY;
 		if (this.speedY <= 0) return;
-		if (this.y<this.oldy) return;
+		//if (this.y>this.oldy) return;
 		for (var i = 0; i < this.game.platforms.length; i++) {
 			var platform = this.game.platforms[i];
 			if (!platform.disabled && this.intersectWithPlatform(platform)) {

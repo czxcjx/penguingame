@@ -131,12 +131,14 @@ function genPhantom(u,res) {
 									return;
 								}
 								res.writeHead(200,"OK",{'Content-Type':"application/json"});
-									res.write(JSON.stringify({
-										links: result,
-										bg: page.renderBase64()
-									}));
-									res.end();
-									ph.exit();
+								var b64 = page.renderBase64();
+								console.log(b64);
+								res.write(JSON.stringify({
+									links: result,
+									bg: b64
+								}));
+								res.end();
+								ph.exit();
 									/*
 								for (var i = 0; i < result.length; i++) {
 									result[i].img = "static/link"+i.toString()+".png";
@@ -175,9 +177,9 @@ function genPhantom(u,res) {
 									//sendBlurImage("static\\img.png",res,result);
 									//result.bg = "/static/img.png";
 									console.log("DONE");*/
-									});};
-									fn();
-								//});
+									//});};
+									//fn();
+							//	});
 							});
 						},2000);
 					});
