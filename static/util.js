@@ -1,4 +1,11 @@
 Util = {
+	getImage: function (src, callback) {
+		var image = new Image();
+		image.src = src + '?' + Date.now();
+		image.onload = callback;
+		alert(image.src);
+		return image;
+	},
 	getBase64Image: function (src, callback) {
 		var image = new Image();
 		image.src = 'data:image/png;base64,' + src;

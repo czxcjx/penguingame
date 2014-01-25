@@ -12,7 +12,7 @@ Game = Class.extend({
 	run: function () {
 		var self = this;
 		this.draw();
-		var url = 'www.google.com';
+		var url = 'www.yahoo.com';
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
 		});
@@ -23,13 +23,12 @@ Game = Class.extend({
 	},
 	parseJSON: function (data) {
 		this.loadedImages = 0;
-		this.totalImages = 1 + data.links.length;
+		this.totalImages = 1;
 		this.page = Util.getBase64Image(data.bg, this.onImageLoaded.bind(this));
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
 			var link = data.links[i];
-			this.platforms.push(new Platform(link.x, link.y, link.width, link.height,
-				Util.getBase64Image(link.img, this.onImageLoaded.bind(this))));
+			this.platforms.push(new Platform(link.x, link.y, link.width, link.height));
 		}
 	},
 	onImageLoaded: function () {
@@ -69,6 +68,7 @@ Game = Class.extend({
 		this.ctx.globalAlpha = 0.2;
 		this.ctx.drawImage(this.page, this.canvas.width / 2 - this.viewport.x,
 			this.canvas.height / 2 - this.viewport.y);
+		this.ctx.globalAlpha = 1;
 		for (var i = 0; i < this.platforms.length; i++) {
 			this.platforms[i].draw(this.ctx);
 		}

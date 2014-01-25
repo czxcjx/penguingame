@@ -62,7 +62,7 @@ function genPhantom(u,res) {
 							return page.evaluate(function(){
 								var ret = [];
 								//console.log(ret);
-								flag=false;
+								//flag=false;
 								$('a').each(function(){
 									//console.log(ret);
 									var str = $(this).html();
@@ -96,7 +96,7 @@ function genPhantom(u,res) {
 											}
 											if (i==str.length-1) {
 												o = document.getElementById('test_overflow1').getBoundingClientRect();
-												if(!flag) {console.log(window.getComputedStyle(document.getElementById('test_overflow1')).cssText);flag=true;}
+												//if(!flag) {console.log(window.getComputedStyle(document.getElementById('test_overflow1')).cssText);flag=true;}
 												//console.log(window);
 												//console.log("HIIIII");
 												ret.push({
@@ -147,20 +147,31 @@ function genPhantom(u,res) {
 										//console.log("NOTTHERE");
 									}
 									//result.bg = "/static/img.png";
+									var fn = function(){
+										gm("static\\img.png").toBuffer(function(err,buffer){
+										if (err) {
+											console.log(err);
+											return;
+										}
+										if (buffer.length<=0) {
+											fn();
+											return;
+										}
 									res.writeHead(200,"OK",{'Content-Type':"application/json"});
 									res.write(JSON.stringify({
 										links: result,
-										bg: "/static/img.png"
+										bg: buffer.toString('base64')
 									}));
 									res.end();
 									//sliceImages("static\\img.png",result,res);
 									//sendBlurImage("static\\img.png",res,result);
 									//result.bg = "/static/img.png";
 									console.log("DONE");
-									
+									});};
+									fn();
 								//});
 							});
-						},5000);
+						},2000);
 					});
 				});
 			});
