@@ -23,7 +23,7 @@ Game = Class.extend({
 	},
 	parseJSON: function (data) {
 		this.page = new Image();
-		this.page.src = data.bg;
+		this.page.src = Util.getBase64Image(data.bg);
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
 			var link = data.links[i];
