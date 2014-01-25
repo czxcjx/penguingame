@@ -22,23 +22,27 @@ Game = Class.extend({
 		*/
 	},
 	parseJSON: function (data) {
-		this.page = new Image();
-		this.page.src = Util.getBase64Image(data.bg);
+		this.loadedImages = 0;
+		this.page = Util.getBase64Image(data.bg, this.onImageLoaded.bind(this));
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
 			var link = data.links[i];
 			this.platforms.push(new Platform(link.x, link.y, link.width, link.height,
-				Util.getBase64Image(link.img)));
+				Util.getBase64Image(link.img, this.onImageLoaded.bind(this))));
 		}
+		this.totalImages = 1 + data.links.length;
+	},
+	onImageLoaded: function () {
+		++this.loadedImages;
+		if (this.loadedImages === this.totalImages) {
+			this.startGame();
+		}
+	},
+	startGame: function () {
 		this.state = 'game';
 		this.viewport = {x: this.canvas.width / 2, y: this.canvas.height / 2};
 		this.hero = new Hero(this);
 		this.hero.setPosition(400, 0);
-		/*
-			this.platforms.push(new Platform(570, 300, 100, 20));
-			this.platforms.push(new Platform(300, 100, 100, 20));
-			this.platforms.push(new Platform(300, 500, 100, 20));
-		*/
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_RATE);
 	},
 	update: function () {
@@ -49,7 +53,8 @@ Game = Class.extend({
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		switch (this.state) {
 		case 'loading':
-			this.drawText('Loading...');
+			var progress = this.totalImages ? Math.round(this.loadedImages / this.totalImages * 100) : 0;
+			this.drawText('Loading (' + progress + '%)...');
 			break;
 		case 'loadfail':
 			this.drawText('Cannot load page!');
@@ -62,8 +67,8 @@ Game = Class.extend({
 	},
 	drawGame: function () {
 		this.ctx.globalAlpha = 0.2;
-		this.ctx.drawImage(this.page, this.viewport.x - this.canvas.width / 2,
-			this.viewport.y - this.canvas.height / 2);
+		this.ctx.drawImage(this.page, this.canvas.width / 2 - this.viewport.x,
+			this.canvas.height / 2 - this.viewport.y);
 		for (var i = 0; i < this.platforms.length; i++) {
 			this.platforms[i].draw(this.ctx);
 		}
