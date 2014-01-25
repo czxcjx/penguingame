@@ -1,0 +1,10 @@
+{
+	"name": "penguingame",
+	"description": "Pulls websites to make a platformer!",
+	"author": "",
+	"dependencies": {
+		"express": ">=3.4.8",
+		"node-phantom": ">= 0.2.5",
+		"gm": ">= 1.14.2"
+	}
+}
