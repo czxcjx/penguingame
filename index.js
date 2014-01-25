@@ -54,7 +54,7 @@ function genPhantom(u,res) {
 			return page.set('viewportSize',{width:1024,height:768},function(err) {
 				return page.open("http://"+u, function(err,status){
 					console.log("opened site? ",status);
-					page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js', function(err) {
+					page.injectJs("static\\jquery.js", function(err) {
 						setTimeout(function(){
 						page.onConsoleMessage = function (msg){
 							console.log(msg);     
