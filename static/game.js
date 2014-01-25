@@ -12,7 +12,7 @@ Game = Class.extend({
 	run: function () {
 		var self = this;
 		this.draw();
-		var url = 'www.yahoo.com';
+		var url = 'en.wikipedia.org/wiki/Web_page';
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
 		});
@@ -67,8 +67,14 @@ Game = Class.extend({
 	},
 	drawGame: function () {
 		this.ctx.globalAlpha = 0.2;
+<<<<<<< HEAD
 		this.ctx.drawImage(this.page, this.canvas.width / 2 - this.viewport.x,
 			this.canvas.height / 2 - this.viewport.y);
+=======
+		this.ctx.drawImage(this.page, -this.viewport.x + this.canvas.width / 2,
+			-this.viewport.y + this.canvas.height / 2);
+		this.ctx.globalAlpha = 1;
+>>>>>>> 2d2907ff923bdb6efad333758793afb96a53db38
 		for (var i = 0; i < this.platforms.length; i++) {
 			this.platforms[i].draw(this.ctx);
 		}
