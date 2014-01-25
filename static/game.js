@@ -12,7 +12,7 @@ Game = Class.extend({
 	run: function () {
 		var self = this;
 		this.draw();
-		var url = 'en.wikipedia.org/wiki/Web_page';
+		var url = 'www.google.com';
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
 		});
@@ -23,6 +23,7 @@ Game = Class.extend({
 	},
 	parseJSON: function (data) {
 		this.loadedImages = 0;
+		this.totalImages = 1 + data.links.length;
 		this.page = Util.getBase64Image(data.bg, this.onImageLoaded.bind(this));
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
@@ -30,7 +31,6 @@ Game = Class.extend({
 			this.platforms.push(new Platform(link.x, link.y, link.width, link.height,
 				Util.getBase64Image(link.img, this.onImageLoaded.bind(this))));
 		}
-		this.totalImages = 1 + data.links.length;
 	},
 	onImageLoaded: function () {
 		++this.loadedImages;
@@ -67,14 +67,8 @@ Game = Class.extend({
 	},
 	drawGame: function () {
 		this.ctx.globalAlpha = 0.2;
-<<<<<<< HEAD
 		this.ctx.drawImage(this.page, this.canvas.width / 2 - this.viewport.x,
 			this.canvas.height / 2 - this.viewport.y);
-=======
-		this.ctx.drawImage(this.page, -this.viewport.x + this.canvas.width / 2,
-			-this.viewport.y + this.canvas.height / 2);
-		this.ctx.globalAlpha = 1;
->>>>>>> 2d2907ff923bdb6efad333758793afb96a53db38
 		for (var i = 0; i < this.platforms.length; i++) {
 			this.platforms[i].draw(this.ctx);
 		}
