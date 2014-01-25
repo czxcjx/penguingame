@@ -56,11 +56,15 @@ function genPhantom(u,res) {
 					console.log("opened site? ",status);
 					page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js', function(err) {
 						setTimeout(function(){
+						page.onConsoleMessage = function (msg){
+							console.log(msg);     
+						};  
 							return page.evaluate(function(){
 								var ret = [];
-								console.log(ret);
+								//console.log(ret);
+								flag=false;
 								$('a').each(function(){
-									console.log(ret);
+									//console.log(ret);
 									var str = $(this).html();
 									if (str.indexOf('<') != -1) return;
 									var start = 0;
@@ -75,6 +79,7 @@ function genPhantom(u,res) {
 										if (h==-1) h = $t.height();
 										else {
 											if (h != $t.height()) {
+												//console.log("WHEE");
 												ret.push({
 													height: h,
 													width: w,
@@ -82,6 +87,7 @@ function genPhantom(u,res) {
 													x: o.left,
 													text: $t.html().slice(0,-1)
 												});
+												//console.log(window.getComputedStyle(document.getElementById('test_overflow1')));
 												start = i;
 												ns = str.slice(0,start)+"<span id='test_overflow1' style=''>"+str.slice(start,i+1)+"</span>"+str.slice(i+1,str.length);
 												$(this).html(ns);
@@ -90,6 +96,9 @@ function genPhantom(u,res) {
 											}
 											if (i==str.length-1) {
 												o = document.getElementById('test_overflow1').getBoundingClientRect();
+												if(!flag) {console.log(window.getComputedStyle(document.getElementById('test_overflow1')).cssText);flag=true;}
+												//console.log(window);
+												//console.log("HIIIII");
 												ret.push({
 													height: h,
 													width: $t.width(),
@@ -106,15 +115,15 @@ function genPhantom(u,res) {
 									}
 									$(this).html(str);
 									//$(this).html("<span style='text-shadow:1px 1px #888888'>"+str+"</span>");
-									console.log(ret);
+									//console.log(ret);
 								});
-								console.log(ret);
+								//console.log(ret);
 								ret = ret.filter(function(elem){
 									if (elem.width==0&&elem.height==0&&elem.x==0&&elem.y==0) return false;
 									if (elem.width<0||elem.height<0||elem.x<0||elem.y<0) return false;
 									return true;
 								});
-								console.log(ret);
+								//console.log(ret);
 								return ret;
 							},function(err,result){
 								if(err) {
@@ -135,9 +144,15 @@ function genPhantom(u,res) {
 									ph.exit();
 									while (1) {
 										if (fs.existsSync("static\\img.png") && fs.statSync("static\\img.png")["size"]>0) break;
-										console.log("NOTTHERE");
+										//console.log("NOTTHERE");
 									}
-									sliceImages("static\\img.png",result,res);
+									//result.bg = "/static/img.png";
+									res.writeHead(200,"OK",{'Content-Type':"application/json"});
+									res.write(JSON.stringify({
+										links: result,
+										bg: "/static/img.png"
+									}));
+									//sliceImages("static\\img.png",result,res);
 									//sendBlurImage("static\\img.png",res,result);
 									//result.bg = "/static/img.png";
 									console.log("DONE");
