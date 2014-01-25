@@ -2,17 +2,22 @@ Game = Class.extend({
 	init: function () {
 		this.canvas = $('#screen')[0];
 		$('canvas').attr('width', 1024).attr('height', 768);
-		this.state = 'loading';
 		this.ctx = this.canvas.getContext('2d');
 		this.resizeCanvas();
 		$(window).resize(this.resizeCanvas.bind(this));
 		this.keyState = {};
+		this.tmpCanvas = document.createElement('canvas');
+		this.tmpCanvas.width = this.canvas.width;
+		this.tmpCanvas.height = this.canvas.height;
+		this.tmpCtx = this.tmpCanvas.getContext('2d');
+		this.tmpCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
 		this.addEvents();
 	},
-	run: function () {
+	run: function (url) {
 		var self = this;
+		if (this.gameInterval) clearInterval(this.gameInterval);
+		this.state = 'loading';
 		this.draw();
-		var url = 'en.wikipedia.com';
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
 		});
@@ -28,7 +33,7 @@ Game = Class.extend({
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
 			var link = data.links[i];
-			this.platforms.push(new Platform(link.x, link.y, link.width, link.height));
+			this.platforms.push(new Platform(link.x, link.y, link.width, link.height, link.href));
 		}
 	},
 	onImageLoaded: function () {
@@ -42,7 +47,7 @@ Game = Class.extend({
 		this.viewport = {x: this.canvas.width / 2, y: this.canvas.height / 2};
 		this.hero = new Hero(this);
 		this.hero.setPosition(400, 0);
-		setInterval(this.update.bind(this), 1000 / Constants.TICK_RATE);
+		this.gameInterval = setInterval(this.update.bind(this), 1000 / Constants.TICK_RATE);
 	},
 	update: function () {
 		this.hero.update();
@@ -65,19 +70,20 @@ Game = Class.extend({
 		requestAnimationFrame(this.draw.bind(this));
 	},
 	drawGame: function () {
-		var tmp = document.createElement('canvas');
-		tmp.width = this.canvas.width;
-		tmp.height = this.canvas.height;
-		var tmpCtx = tmp.getContext('2d');
-		tmpCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-		tmpCtx.fillRect(0, 0, tmp.width, tmp.height);
-		tmpCtx.globalCompositeOperation = 'destination-out';
+		this.tmpCtx.clearRect(0, 0, this.tmpCanvas.width, this.tmpCanvas.height);
+		this.tmpCtx.fillRect(0, 0, this.tmpCanvas.width, this.tmpCanvas.height);
+		this.tmpCtx.save();
+		this.tmpCtx.globalCompositeOperation = 'destination-out';
 		for (var i = 0; i < this.platforms.length; i++) {
-			this.platforms[i].draw(tmpCtx);
+			this.platforms[i].drawMask(this.tmpCtx);
 		}
+		this.tmpCtx.restore();
 		this.ctx.drawImage(this.page, this.canvas.width / 2 - this.viewport.x,
 			this.canvas.height / 2 - this.viewport.y);
-		this.ctx.drawImage(tmp, 0, 0);
+		this.ctx.drawImage(this.tmpCanvas, 0, 0);
+		for (var i = 0; i < this.platforms.length; i++) {
+			this.platforms[i].draw(this.ctx);
+		}
 		this.hero.draw(this.ctx);
 	},
 	drawText: function (text) {

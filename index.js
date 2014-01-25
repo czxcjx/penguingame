@@ -52,9 +52,10 @@ function genPhantom(u,res) {
 	phantom.create(function(err,ph){
 		return ph.createPage(function(err,page){
 			return page.set('viewportSize',{width:1024,height:768},function(err) {
-				return page.open("http://"+u, function(err,status){
+				return page.open(u, function(err,status){
 					console.log("opened site? ",status);
-					page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js', function(err) {
+					console.log(u);
+					page.injectJs("static\\jquery.js", function(err) {
 						setTimeout(function(){
 						page.onConsoleMessage = function (msg){
 							console.log(msg);     
@@ -85,7 +86,8 @@ function genPhantom(u,res) {
 													width: w,
 													y: o.top,
 													x: o.left,
-													text: $t.html().slice(0,-1)
+													text: $t.html().slice(0,-1),
+													href: $(this).prop('href')
 												});
 												//console.log(window.getComputedStyle(document.getElementById('test_overflow1')));
 												start = i;
@@ -104,7 +106,8 @@ function genPhantom(u,res) {
 													width: $t.width(),
 													y: o.top,
 													x: o.left,
-													text: $t.html()
+													text: $t.html(),
+													href: $(this).prop('href')
 												});
 											}
 										}
@@ -131,14 +134,19 @@ function genPhantom(u,res) {
 									return;
 								}
 								res.writeHead(200,"OK",{'Content-Type':"application/json"});
-								var b64 = page.renderBase64();
-								console.log(b64);
-								res.write(JSON.stringify({
-									links: result,
-									bg: b64
-								}));
-								res.end();
-								ph.exit();
+								page.renderBase64('png',function(err,b64){
+									if (err) {
+										console.log(err);
+										return;
+									}
+									//console.log(b64);
+									res.write(JSON.stringify({
+										links: result,
+										bg: b64
+									}));
+									res.end();
+									ph.exit();
+								});
 									/*
 								for (var i = 0; i < result.length; i++) {
 									result[i].img = "static/link"+i.toString()+".png";
