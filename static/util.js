@@ -1,6 +1,8 @@
 Util = {
-	getBase64Image: function (src) {
-		return 'data:image/png;base64,' + src;
+	getBase64Image: function (src, callback) {
+		var image = new Image();
+		image.src = 'data:image/png;base64,' + src;
+		image.onload = callback;
 	}
 };
 Util.Math = {
