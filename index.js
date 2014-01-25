@@ -111,12 +111,18 @@ function genPhantom(u,res) {
 								for (var i = 0; i < result.length; i++) {
 									result[i].img = "static/link"+i.toString()+".png";
 								}
-								page.render("static\\img.png");
-								sliceImages("static\\img.png",result,res);
-								//sendBlurImage("static\\img.png",res,result);
-								//result.bg = "/static/img.png";
-								console.log("DONE");
-								ph.exit();
+								fs.unlink("static\\img.png",function(err) {
+									if (err) {
+										console.log(err);
+										return;
+									}
+									page.render("static\\img.png");
+									sliceImages("static\\img.png",result,res);
+									//sendBlurImage("static\\img.png",res,result);
+									//result.bg = "/static/img.png";
+									console.log("DONE");
+									ph.exit();
+								});
 							});
 						},5000);
 					});
@@ -129,14 +135,16 @@ function sliceImages(imgname,result,res) {
 	console.log("SLICING");
 	function docrop(err,i) {
 		if (i>=result.length) {
-			res.writeHead(200,"OK",{'Content-Type':"application/json"});
-			res.write(JSON.stringify({
-				links: result,
-				bg: "/static/img.png"
-			}));
-			res.end();
-			console.log("DONE");
-			return;
+			return gm(imgname).toBuffer(function(err,buffer){
+				res.writeHead(200,"OK",{'Content-Type':"application/json"});				
+				res.write(JSON.stringify({
+					links: result,
+					bg: buffer.toString('base64')
+				}));
+				res.end();
+				console.log("DONE");
+				return;
+			});
 		}
 		if (err) {
 			console.log(err);
