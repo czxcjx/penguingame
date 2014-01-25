@@ -1,15 +1,18 @@
 Platform = Class.extend({
-	init: function (x, y, width, height) {
+	init: function (x, y, width, height, href) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.href = href;
 	},
-	draw: function (ctx) {
-		ctx.save();
+	drawMask: function (ctx) {
 		var view = game.toViewPos(this.x, this.y);
 		ctx.fillRect(view.x, view.y, this.width, this.height);
-		//ctx.drawImage(this.image, view.x, view.y);
-		ctx.restore();
+	},
+	draw: function (ctx) {
+		if (this !== game.hero.currentPlatform) return;
+		var view = game.toViewPos(this.x, this.y);
+		ctx.strokeRect(view.x, view.y, this.width, this.height);
 	}
 });

@@ -25,9 +25,10 @@ Hero = Class.extend({
 			case Constants.Key.DOWN:
 				this.drop();
 				break;
-			/*case Constants.Key.DOWN:
-				this.drop();
-				break;*/
+			case Constants.Key.UP:
+				if (this.currentPlatform)
+					this.enter(this.currentPlatform.href);
+				break;
 			case Constants.Key.SPACE:
 				this.jump();
 				break;
@@ -47,12 +48,16 @@ Hero = Class.extend({
 	drop: function () {
 		this.currentPlatform.disabled = true;
 	},
+	enter: function (href) {
+		game.run(href);
+	},
 	move: function (direction) {
 		this.x += this.speedX * direction;
 	},
 	jump: function () {
 		if (this.speedY) return;
 		this.speedY = -Constants.JUMP_SPEED;
+		this.currentPlatform = null;
 		for (var i = 0; i < this.game.platforms.length; i++) {
 			var platform = this.game.platforms[i];
 			platform.disabled = false;

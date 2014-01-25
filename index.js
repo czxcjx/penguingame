@@ -52,8 +52,9 @@ function genPhantom(u,res) {
 	phantom.create(function(err,ph){
 		return ph.createPage(function(err,page){
 			return page.set('viewportSize',{width:1024,height:768},function(err) {
-				return page.open("http://"+u, function(err,status){
+				return page.open(u, function(err,status){
 					console.log("opened site? ",status);
+					console.log(u);
 					page.injectJs("static\\jquery.js", function(err) {
 						setTimeout(function(){
 						page.onConsoleMessage = function (msg){
@@ -86,7 +87,7 @@ function genPhantom(u,res) {
 													y: o.top,
 													x: o.left,
 													text: $t.html().slice(0,-1),
-													href: $(this).attr('href')
+													href: $(this).prop('href')
 												});
 												//console.log(window.getComputedStyle(document.getElementById('test_overflow1')));
 												start = i;
@@ -106,7 +107,7 @@ function genPhantom(u,res) {
 													y: o.top,
 													x: o.left,
 													text: $t.html(),
-													href: $(this).attr('href')
+													href: $(this).prop('href')
 												});
 											}
 										}
