@@ -51,7 +51,7 @@ console.log("Listening on port 80...");
 function genPhantom(u,res) {
 	phantom.create(function(err,ph){
 		return ph.createPage(function(err,page){
-			return page.set('viewportSize',{width:800,height:600},function(err) {
+			return page.set('viewportSize',{width:1024,height:768},function(err) {
 				return page.open("http://"+u, function(err,status){
 					console.log("opened site? ",status);
 					page.includeJs('http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js', function(err) {
@@ -114,8 +114,8 @@ function genPhantom(u,res) {
 								page.render("static\\img.png");
 								sliceImages("static\\img.png",result,res);
 								//sendBlurImage("static\\img.png",res,result);
-								
-								//console.log("DONE");
+								//result.bg = "/static/img.png";
+								console.log("DONE");
 								ph.exit();
 							});
 						},5000);
@@ -132,8 +132,9 @@ function sliceImages(imgname,result,res) {
 			res.writeHead(200,"OK",{'Content-Type':"application/json"});
 			res.write(JSON.stringify({
 				links: result,
-				bg: "static/img.png"
+				bg: "/static/img.png"
 			}));
+			res.end();
 			console.log("DONE");
 			return;
 		}

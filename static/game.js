@@ -12,7 +12,7 @@ Game = Class.extend({
 	run: function () {
 		var self = this;
 		this.draw();
-		var url = 'www.google.com';
+		var url = 'www.yahoo.com';
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
 		});
@@ -23,12 +23,12 @@ Game = Class.extend({
 	},
 	parseJSON: function (data) {
 		this.page = new Image();
-		this.page.src = Util.getBase64Image(data.bg);
+		this.page.src = data.bg;
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
 			var link = data.links[i];
 			this.platforms.push(new Platform(link.x, link.y, link.width, link.height,
-				Util.getBase64Image(link.src)));
+				Util.getBase64Image(link.img)));
 		}
 		this.state = 'game';
 		this.viewport = {x: this.canvas.width / 2, y: this.canvas.height / 2};
