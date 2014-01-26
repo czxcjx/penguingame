@@ -20,19 +20,11 @@ function checkAccessible(platformNetwork, maxHoriV, maxVertV, g, mu) {
 
 	var apexX, apexY, minTime, xIntercept;
 	minTime = 1/mu * Math.log(mu/g*maxVertV +1);
-<<<<<<< HEAD
 	//alert("minTime: " + minTime);
 	apexX = maxHoriV * minTime;
 	apexY = -g/mu*minTime + 1/mu*(maxVertV + g/mu)*(1-Math.exp(-mu*minTime));
 	xIntercept = 1.2*apexX;
 	//alert("apexX: " + apexX + "\n apexY: " + apexY);
-=======
-	alert("minTime: " + minTime);
-	apexX = maxHoriV * minTime;
-	apexY = -g/mu*minTime + 1/mu*(maxVertV + g/mu)*(1-Math.exp(-mu*minTime));
-	xIntercept = 1.2*apexX;
-	alert("apexX: " + apexX + "\n apexY: " + apexY);
->>>>>>> 1cf00daeacffc2e1560a89c3e5a85bfe61390cae
 	
 	/* === Build Graph === */
 	
@@ -55,11 +47,7 @@ function checkAccessible(platformNetwork, maxHoriV, maxVertV, g, mu) {
 			if (j == i) continue;
 
 			if (isReachable( platformNetwork[i], platformNetwork[j], apexX, apexY, xIntercept, maxHoriV, maxVertV, g, mu)){
-<<<<<<< HEAD
 				//alert(i + "->" + j);
-=======
-				alert(i + "->" + j);
->>>>>>> 1cf00daeacffc2e1560a89c3e5a85bfe61390cae
 				platformGraph[i].pushEdge(j);
 				platformGraphReverse[j].pushEdge(i);
 			}
@@ -68,7 +56,6 @@ function checkAccessible(platformNetwork, maxHoriV, maxVertV, g, mu) {
 	
 	// Reverse DFS
 	// Trivial Case: If DFS did not reach all nodes
-<<<<<<< HEAD
 	var visitSeq = [];
 	
 	for (var i = networkSize - 1; i >= 0; i--)
@@ -149,16 +136,6 @@ function checkAccessible(platformNetwork, maxHoriV, maxVertV, g, mu) {
 		}
 		return true;
 	}
-=======
-	var visitCount = []; visitCount.push(0);
-
-	depthFirstSearch(platformGraphReverse, networkSize - 1, visitCount);
-	if (networkSize > visitCount[0]) return false;	
-
-	visitCount[0] = 0;
-	depthFirstSearch(platformGraph, networkSize - 1, visitCount);
-	if (networkSize > visitCount[0]) return false;
->>>>>>> 1cf00daeacffc2e1560a89c3e5a85bfe61390cae
 	
 }
 
@@ -206,11 +183,7 @@ function isReachable(startPlatform, endPlatform, apexX, apexY, xIntercept, maxHo
 	else if (leftX1 >= rightX2) horizontalDist = leftX1 - rightX2;
 	else horizontalDist = 0;
 	verticalDist = y1 - y2;
-<<<<<<< HEAD
 	//alert(horizontalDist  + " , " + verticalDist);
-=======
-	alert(horizontalDist  + " , " + verticalDist);
->>>>>>> 1cf00daeacffc2e1560a89c3e5a85bfe61390cae
 
 
 	/* === Checking if endPlatform is reachable with a jump === */
@@ -223,11 +196,7 @@ function isReachable(startPlatform, endPlatform, apexX, apexY, xIntercept, maxHo
 	// If the maxY reached after maxTime is higher than verticalDist, true.
 	var time = horizontalDist/maxHoriV;
 	var height = -g/mu*time + 1/mu*(maxVertV + g/mu)*(1-Math.exp(-mu*time));
-<<<<<<< HEAD
 	//alert(height + "\n" + verticalDist);
-=======
-	alert(height + "\n" + verticalDist);
->>>>>>> 1cf00daeacffc2e1560a89c3e5a85bfe61390cae
 	if (apexX >= horizontalDist) return true;
 	else if (height*0.7 > verticalDist + 100) return true;
 	else return false;

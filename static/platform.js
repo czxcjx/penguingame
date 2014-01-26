@@ -11,8 +11,15 @@ Platform = Class.extend({
 		ctx.fillRect(view.x, view.y, this.width, this.height);
 	},
 	draw: function (ctx) {
-		if (this !== game.hero.currentPlatform) return;
 		var view = game.toViewPos(this.x, this.y);
+		if (this.portal) {
+			ctx.drawImage(game.portalImage, view.x + this.width / 2 - Constants.PORTAL_SIZE / 2,
+				view.y - Constants.PORTAL_SIZE, Constants.PORTAL_SIZE, Constants.PORTAL_SIZE);
+		}
+		if (this !== game.hero.currentPlatform) return;
 		ctx.strokeRect(view.x, view.y, this.width, this.height);
+	},
+	addPortal: function (otherPlatform) {
+		this.portal = otherPlatform;
 	}
 });

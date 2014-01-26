@@ -1,6 +1,5 @@
 Hero = Class.extend({
-	init: function (game) {
-		this.game = game;
+	init: function () {
 		this.width = 50;
 		this.height = 50;
 		this.speedX = Constants.HERO_SPEED_X;
@@ -9,10 +8,8 @@ Hero = Class.extend({
 	setPosition: function (x, y) {
 		this.x = x;
 		this.y = y;
-		this.oldy = y;
 	},
 	update: function () {
-		this.oldy = this.y;
 		for (var key in game.keyState) {
 			key = parseInt(key);
 			switch (key) {
@@ -25,9 +22,16 @@ Hero = Class.extend({
 			case Constants.Key.DOWN:
 				this.drop();
 				break;
+			case Constants.Key.ENTER:
+				this.enter(this.currentPlatform.href);
+				break;
 			case Constants.Key.UP:
-				if (this.currentPlatform)
-					this.enter(this.currentPlatform.href);
+				if (this.currentPlatform && this.currentPlatform.portal) {
+					var otherPlatform = this.currentPlatform.portal;
+					this.y = otherPlatform.y;
+					this.x = otherPlatform.x + otherPlatform.width / 2;
+					this.currentPlatform = otherPlatform;
+				}
 				break;
 			case Constants.Key.SPACE:
 				this.jump();
@@ -36,7 +40,11 @@ Hero = Class.extend({
 		}
 		this.speedY -= Constants.FRICTION * this.speedY;
 		this.speedY += Constants.GRAVITY;
-		this.fall();
+		this.y += this.speedY;
+		if (this.y > game.page.height) this.y = 0;
+		if (this.speedY > 0) {
+			this.checkPlatformCollision();
+		}
 	},
 	draw: function (ctx) {
 		ctx.save();
@@ -46,6 +54,7 @@ Hero = Class.extend({
 		ctx.restore();
 	},
 	drop: function () {
+		if (!this.currentPlatform) return;
 		this.currentPlatform.disabled = true;
 	},
 	enter: function (href) {
@@ -58,28 +67,29 @@ Hero = Class.extend({
 		if (this.speedY) return;
 		this.speedY = -Constants.JUMP_SPEED;
 		this.currentPlatform = null;
-		for (var i = 0; i < this.game.platforms.length; i++) {
-			var platform = this.game.platforms[i];
+		for (var i = 0; i < game.platforms.length; i++) {
+			var platform = game.platforms[i];
 			platform.disabled = false;
 		}
 	},
-	fall: function () {
+	checkPlatformCollision: function () {
+		var prevY = this.y - this.speedY;
 		// Fall until we intersect with a platform
-		this.y += this.speedY;
-		if (this.speedY <= 0) return;
-		//if (this.y>this.oldy) return;
-		for (var i = 0; i < this.game.platforms.length; i++) {
-			var platform = this.game.platforms[i];
-			if (!platform.disabled && this.intersectWithPlatform(platform)) {
+		for (var i = 0; i < game.platforms.length; i++) {
+			var platform = game.platforms[i];
+			if (prevY <= platform.y && !platform.disabled && this.intersectWithPlatform(platform)) {
 				this.y = platform.y;
 				this.currentPlatform = platform;
 				this.speedY = 0;
-				break;
+				return;
 			}
 		}
+		this.currentPlatform = null;
 	},
 	intersectWithPlatform: function (platform) {
-		var startY = Math.max(this.y - this.height, platform.y);
+		var prevY = this.y - this.speedY;
+		// Check if vertical line intersects rectangle
+		var startY = Math.max(prevY - this.height, platform.y);
 		var endY = Math.min(this.y, platform.y + platform.height);
 		var startX = Math.max(this.x - this.width / 2, platform.x);
 		var endX = Math.min(this.x + this.width / 2, platform.x + platform.width);

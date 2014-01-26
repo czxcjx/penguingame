@@ -17,6 +17,7 @@ Game = Class.extend({
 		var self = this;
 		if (this.gameInterval) clearInterval(this.gameInterval);
 		this.state = 'loading';
+		this.startLoadTime = Date.now();
 		this.draw();
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
@@ -28,7 +29,8 @@ Game = Class.extend({
 	},
 	parseJSON: function (data) {
 		this.loadedImages = 0;
-		this.totalImages = 1;
+		this.totalImages = 2;
+		this.portalImage = Util.getImage('portal.png', this.onImageLoaded.bind(this));
 		this.page = Util.getBase64Image(data.bg, this.onImageLoaded.bind(this));
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
@@ -44,8 +46,9 @@ Game = Class.extend({
 	},
 	startGame: function () {
 		this.state = 'game';
+		checkAccessible(this.platforms, Constants.HERO_SPEED_X, Constants.JUMP_SPEED, Constants.GRAVITY, Constants.FRICTION);
 		this.viewport = {x: this.canvas.width / 2, y: this.canvas.height / 2};
-		this.hero = new Hero(this);
+		this.hero = new Hero();
 		this.hero.setPosition(400, 0);
 		this.gameInterval = setInterval(this.update.bind(this), 1000 / Constants.TICK_RATE);
 	},
@@ -57,7 +60,7 @@ Game = Class.extend({
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		switch (this.state) {
 		case 'loading':
-			var progress = this.totalImages ? Math.round(this.loadedImages / this.totalImages * 100) : 0;
+			var progress = Math.min(100, Math.round((Date.now() - this.startLoadTime) / 15000 * 100));
 			this.drawText('Loading (' + progress + '%)...');
 			break;
 		case 'loadfail':

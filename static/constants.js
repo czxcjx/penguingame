@@ -4,11 +4,14 @@ Constants = {
 	FRICTION: 0.1,
 	JUMP_SPEED: 100,
 	HERO_SPEED_X: 10,
+	PORTAL_SIZE: 40,
+	PORTAL_DENSITY: 0.1,
 	Key: {
 		LEFT: 37,
 		UP: 38,
 		RIGHT: 39,
 		DOWN: 40,
-		SPACE: 32
+		SPACE: 32,
+		ENTER: 13
 	}
 };
