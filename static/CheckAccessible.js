@@ -43,11 +43,11 @@ function checkAccessible(platformNetwork, maxHoriV, maxVertV, g, mu) {
 		// Scanning all platforms up to currentHeight + maxY
 		// Note: Account for self-check
 		for (var j=networkSize-1; j>=0; j--){
-			if (currentHeight - apexY > platformNetwork[j].y) break;
+			//if (currentHeight - apexY > platformNetwork[j].y) break;
 			if (j == i) continue;
 
 			if (isReachable( platformNetwork[i], platformNetwork[j], apexX, apexY, xIntercept, maxHoriV, maxVertV, g, mu)){
-				//alert(i + "->" + j);
+				console.log(i + "->" + j);
 				platformGraph[i].pushEdge(j);
 				platformGraphReverse[j].pushEdge(i);
 			}
@@ -91,7 +91,7 @@ function checkAccessible(platformNetwork, maxHoriV, maxVertV, g, mu) {
 		}
 	}
 	
-	
+	console.log(sccArray);
 	// Portal Selection for non-SCC graph
 	if (sccArray[0].length != networkSize)
 	{

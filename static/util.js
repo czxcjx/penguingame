@@ -1,7 +1,7 @@
 Util = {
 	getImage: function (src, callback) {
 		var image = new Image();
-		image.src = src + '?' + Date.now();
+		image.src = src + '?t=' + Date.now();
 		image.onload = callback;
 		return image;
 	},

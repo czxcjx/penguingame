@@ -3,8 +3,8 @@ Game = Class.extend({
 		this.canvas = $('#screen')[0];
 		$('canvas').attr('width', 1024).attr('height', 768);
 		this.ctx = this.canvas.getContext('2d');
-		this.resizeCanvas();
-		$(window).resize(this.resizeCanvas.bind(this));
+		//this.resizeCanvas();
+		//$(window).resize(this.resizeCanvas.bind(this));
 		this.keyState = {};
 		this.tmpCanvas = document.createElement('canvas');
 		this.tmpCanvas.width = this.canvas.width;
@@ -12,6 +12,12 @@ Game = Class.extend({
 		this.tmpCtx = this.tmpCanvas.getContext('2d');
 		this.tmpCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
 		this.addEvents();
+		$('body').append($('<div />',{id:"herodiv"}).css({
+			position: 'fixed',
+			"z-index": 9999,
+			"background-image":"url('/static/hero_sprite.png')"
+		}));
+		$('#herodiv').hide();
 	},
 	run: function (url) {
 		var self = this;
@@ -19,6 +25,7 @@ Game = Class.extend({
 		this.state = 'loading';
 		this.startLoadTime = Date.now();
 		this.draw();
+		console.log('called');
 		$.getJSON('/query?page=' + url, this.parseJSON.bind(this)).fail(function () {
 			self.state = 'loadfail';
 		});
@@ -30,8 +37,8 @@ Game = Class.extend({
 	parseJSON: function (data) {
 		this.loadedImages = 0;
 		this.totalImages = 2;
-		this.portalImage = Util.getImage('portal.png', this.onImageLoaded.bind(this));
-		this.page = Util.getBase64Image(data.bg, this.onImageLoaded.bind(this));
+		this.portalImage = Util.getImage('portal1.gif', this.onImageLoaded.bind(this));
+		this.page = Util.getImage(data.bg, this.onImageLoaded.bind(this));
 		this.platforms = [];
 		for (var i = 0; i < data.links.length; i++) {
 			var link = data.links[i];

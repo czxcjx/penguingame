@@ -49,72 +49,104 @@ http.createServer(function(req,res){
 console.log("Listening on port 80...");
 */
 function genPhantom(u,res) {
+	console.log("u:",u);
+	res.writeHead(200,"OK",{'Content-Type':"application/json"});
 	phantom.create(function(err,ph){
 		return ph.createPage(function(err,page){
 			return page.set('viewportSize',{width:1024,height:768},function(err) {
+				//var prs = url.parse(u);
+				//var u2 = prs.protocol+"://"+prs.host+'/'+encodeURI(prs.path.slice(1));
 				return page.open(u, function(err,status){
 					console.log("opened site? ",status);
 					console.log(u);
 					page.injectJs("static\\jquery.js", function(err) {
 						setTimeout(function(){
 						page.onConsoleMessage = function (msg){
-							console.log(msg);     
+							console.error(msg);     
 						};  
 							return page.evaluate(function(){
 								var ret = [];
 								//console.log(ret);
 								//flag=false;
+								var ctr = 0;
 								$('a').each(function(){
 									//console.log(ret);
+									if (ctr>=250) return false;
+									ctr++;
 									var str = $(this).html();
-									if (str.indexOf('<') != -1) return;
+									console.error(str);
+									if (str.indexOf('<') != -1) return true;
 									var start = 0;
 									var h = -1;
 									var o = {top:-1,left:-1};
 									var w = -1;
-									for (var i = 0; i < str.length; i++) {
-										var ns = str.slice(0,start)+"<span id='test_overflow1'>"+str.slice(start,i+1)+"</span>"+str.slice(i+1,str.length);
-										$(this).html(ns);
-										var $t = $(document.getElementById('test_overflow1'));
-										//console.log(document.getMatchedCssRules(document.getElementById('test_overflow1'),''));
-										if (h==-1) h = $t.height();
-										else {
-											if (h != $t.height()) {
-												//console.log("WHEE");
-												ret.push({
-													height: h,
-													width: w,
-													y: o.top,
-													x: o.left,
-													text: $t.html().slice(0,-1),
-													href: $(this).prop('href')
-												});
-												//console.log(window.getComputedStyle(document.getElementById('test_overflow1')));
-												start = i;
-												ns = str.slice(0,start)+"<span id='test_overflow1' style=''>"+str.slice(start,i+1)+"</span>"+str.slice(i+1,str.length);
-												$(this).html(ns);
-												$t = $(document.getElementById('test_overflow1'));
-												h = $t.height();
+									var n1,n2;
+									n1 = "<span id='test_overflow1'>"+str.slice(0,1)+"</span>"+str.slice(1,str.length);
+									n2 = "<span id='test_overflow1'>"+str+"</span>";
+									$(this).html(n1);
+									var r = document.getElementById('test_overflow1').getBoundingClientRect();
+									var h1 = r.bottom-r.top;
+									$(this).html(n2);
+									r = document.getElementById('test_overflow1').getBoundingClientRect();
+									if (h1 == r.bottom-r.top) {
+										ret.push({
+											height: r.bottom-r.top,
+											width: $('#test_overflow1').width(),
+											x: r.left,
+											y: r.top,
+											bottom: r.bottom,
+											top: r.top,
+											text: str,
+											href: $(this).prop('href')
+										});
+									} else {
+										$(this).html(str);
+										return true;
+										for (var i = 0; i < str.length; i++) {
+											//if (h!=-1&&str[i]!=' ') continue;
+											var ns = str.slice(0,start)+"<span id='test_overflow1'>"+str.slice(start,i+1)+"</span>"+str.slice(i+1,str.length);
+											$(this).html(ns);
+											var $t = $(document.getElementById('test_overflow1'));
+											//console.log(document.getMatchedCssRules(document.getElementById('test_overflow1'),''));
+											if (h==-1||str[i]==' ') h = $t.height();
+											else {
+												if (h != $t.height()) {
+													//console.log("WHEE");
+													ret.push({
+														height: h,
+														width: w,
+														y: o.top,
+														x: o.left,
+														text: $t.html().slice(0,-1),
+														href: $(this).prop('href')
+													});
+													//console.log(window.getComputedStyle(document.getElementById('test_overflow1')));
+													start = i;
+													ns = str.slice(0,start)+"<span id='test_overflow1' style=''>"+str.slice(start,i+1)+"</span>"+str.slice(i+1,str.length);
+													$(this).html(ns);
+													$t = $(document.getElementById('test_overflow1'));
+													h = $t.height();
+												}
+												if (i==str.length-1) {
+													o = document.getElementById('test_overflow1').getBoundingClientRect();
+													//if(!flag) {console.log(window.getComputedStyle(document.getElementById('test_overflow1')).cssText);flag=true;}
+													//console.log(window);
+													//console.log("HIIIII");
+													ret.push({
+														height: h,
+														width: $t.width(),
+														y: o.top,
+														x: o.left,
+														text: $t.html(),
+														href: $(this).prop('href')
+													});
+												}
 											}
-											if (i==str.length-1) {
-												o = document.getElementById('test_overflow1').getBoundingClientRect();
-												//if(!flag) {console.log(window.getComputedStyle(document.getElementById('test_overflow1')).cssText);flag=true;}
-												//console.log(window);
-												//console.log("HIIIII");
-												ret.push({
-													height: h,
-													width: $t.width(),
-													y: o.top,
-													x: o.left,
-													text: $t.html(),
-													href: $(this).prop('href')
-												});
-											}
+											w = $t.width();
+											o = document.getElementById('test_overflow1').getBoundingClientRect();
+											/*o.top = $t.offset().top;
+											o.left = $t.offset().left;*/
 										}
-										w = $t.width();
-										o = document.getElementById('test_overflow1').getBoundingClientRect();
-										/*o.top = $t.offset().top;
-										o.left = $t.offset().left;*/
 									}
 									$(this).html(str);
 									//$(this).html("<span style='text-shadow:1px 1px #888888'>"+str+"</span>");
@@ -129,12 +161,13 @@ function genPhantom(u,res) {
 								//console.log(ret);
 								return ret;
 							},function(err,result){
+								console.log("Done with links");
 								if(err) {
 									console.log(err);
 									return;
 								}
-								res.writeHead(200,"OK",{'Content-Type':"application/json"});
-								page.renderBase64('png',function(err,b64){
+								var fname = 'img'+Date.now()+'.png';
+								page.render('static\\'+fname,function(err){
 									if (err) {
 										console.log(err);
 										return;
@@ -142,7 +175,7 @@ function genPhantom(u,res) {
 									//console.log(b64);
 									res.write(JSON.stringify({
 										links: result,
-										bg: b64
+										bg: "/static/"+fname
 									}));
 									res.end();
 									ph.exit();
