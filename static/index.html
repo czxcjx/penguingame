@@ -16,13 +16,22 @@
 				overflow: hidden;
 				height: 100%;
 			}
+			#scorediv {
+				font-size: 30px;
+				vertical-align: top;
+				font-family: Courier New;
+			}
 		</style>
 	</head>
 	<body>
+		<table><tr><td>
 		<canvas id="screen"></canvas>
 		<script type="text/javascript">
 			var game = new Game();
 			game.run('http://en.wikipedia.org');
 		</script>
+		</td><td style='vertical-align:top;'>
+			<div id='scorediv'></div>
+		</td></tr></table>
 	</body>
 </html>

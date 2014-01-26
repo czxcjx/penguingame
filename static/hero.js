@@ -21,6 +21,14 @@ Hero = Class.extend({
 		for (var i = 0; i < this.smallportal.length; i++) {
 			if (this.smallportal[i]!=this.currentPlatform) this.smallportal[i].portalsize++;
 		}
+		for (var i = 0; i < this.game.coins.length; i++) {
+			var coinpos = this.game.coins[i];
+			if (Math.abs(this.x-this.game.coins[i].x)<20&&Math.abs((this.y-30)-this.game.coins[i].y)<25) {
+				this.game.coins[i] = null;
+				this.game.score++;
+			}
+		}
+		this.game.coins = this.game.coins.filter(function(el){return el!=null;});
 		if (this.flyingframes>=0) {
 			var FRAMES = 7;
 			if (this.flyingframes >= FRAMES) {
@@ -72,7 +80,10 @@ Hero = Class.extend({
 		this.speedY -= Constants.FRICTION * this.speedY;
 		this.speedY += Constants.GRAVITY;
 		this.y += this.speedY;
-		if (this.y > game.page.height) this.y = 0;
+		if (this.y > game.page.height) {
+			this.y = 0;
+			this.game.falls++;
+		}
 		if (this.speedY > 0) {
 			this.checkPlatformCollision();
 		}

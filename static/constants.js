@@ -13,5 +13,6 @@ Constants = {
 		DOWN: 40,
 		SPACE: 32,
 		ENTER: 13
-	}
+	},
+	COIN_DENSITY: 0.1,
 };
